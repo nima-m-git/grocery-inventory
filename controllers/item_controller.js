@@ -1,5 +1,4 @@
 var async = require('async');
-var Category = require('../models/category');
 var Item = require('../models/item');
 
 const { body, validationResult } = require('express-validator');
@@ -8,10 +7,11 @@ const { body, validationResult } = require('express-validator');
 // Display all Items
 exports.item_list = function (req, res, next) {
 
-    Item.find({}, 'name')
-        .exec(function (err, item_names) {
+    Item.find()
+        .sort([['name', 'ascending']])
+        .exec(function (err, item_list) {
             if (err) { return next(err); }
-            res.render('item_list', { item_names, });
+            res.render('item_list', { item_list, });
         });
 }
 
@@ -19,7 +19,9 @@ exports.item_list = function (req, res, next) {
 exports.item_details = function(req, res, next) {
     async.parallel({
         item: function(callback) {
-            item.findById(req.params.id).exec(callback)
+            Item.findById(req.params.id)
+            .populate('category')
+            .exec(callback)
         },
     }, function(err, results) {
         if (err) { return next(err); }

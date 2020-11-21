@@ -1,0 +1,10 @@
+extends layout
+
+block content
+
+    h2 #{item.name}
+    p Price: $#{item.price}/lb
+    p Stock: #{item.stock}
+    p #{item.description} 
+    p Category: 
+        a(href=item.category.url) #{item.category.name}

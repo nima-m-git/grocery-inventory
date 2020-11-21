@@ -16,17 +16,18 @@ exports.index = function (req, res, next) {
         },
     }, function(err, results) {
         if (err) { return next(err); }
-        res.render('index', { err, data: results, } )
+        res.render('index', { err, ...results, } )
     });
 };
 
 // Display all categories
 exports.category_list = function (req, res, next) {
 
-    Category.find({}, 'name')
-        .exec(function (err, category_names) {
+    Category.find()
+        .sort([['name', 'ascending']])
+        .exec(function (err, category_list) {
             if (err) { return next(err); }
-            res.render('category_list', { category_names, });
+            res.render('category_list', { category_list, });
         });
 }
 

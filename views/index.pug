@@ -2,4 +2,13 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+
+  if err
+    p Error: #{err}
+  else
+    p Invetory:
+    
+    ul
+
+      li Categories: #{category_count}
+      li Items: #{item_count}
