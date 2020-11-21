@@ -12,7 +12,7 @@ var item_controller = require('../controllers/item_controller');
 router.get('/', category_controller.index);
 
 // All categories
-router.get('/categories', category_controller.get_all_categories);
+router.get('/categories', category_controller.category_list);
 
 // category create
 router.get('/category/create', category_controller.category_create_get);
@@ -36,7 +36,7 @@ router.get('/category/:id', category_controller.category_details);
 ///     ITEM ROUTES     \\\
 
 // All items
-router.get('/items', item_controller.get_all_items);
+router.get('/items', item_controller.item_list);
 
 // Item create
 router.get('/item/create', item_controller.item_create_get);
@@ -56,48 +56,6 @@ router.post('/item/:id/delete', item_controller.item_delete_post)
 // Item details
 router.get('/item/:id', item_controller.item_details);
 
-
-// All items
-router.get('/items', item_controller.get_all_items);
-
-// Item create
-router.get('/item/create', item_controller.item_create_get);
-
-router.post('/item/create', item_controller.item_create_post);
-
-// Item update
-router.get('/item/:id/update', item_controller.item_update_get);
-
-router.post('/item/:id/update', item_controller.item_update_post);
-
-// Item delete
-router.get('/item/:id/delete', item_controller.item_delete_get);
-
-router.post('/item/:id/delete', item_controller.item_delete_post)
-
-// Item details
-router.get('/item/:id', item_controller.item_details);
-
-// All items
-router.get('/items', item_controller.get_all_items);
-
-// Item create
-router.get('/item/create', item_controller.item_create_get);
-
-router.post('/item/create', item_controller.item_create_post);
-
-// Item update
-router.get('/item/:id/update', item_controller.item_update_get);
-
-router.post('/item/:id/update', item_controller.item_update_post);
-
-// Item delete
-router.get('/item/:id/delete', item_controller.item_delete_get);
-
-router.post('/item/:id/delete', item_controller.item_delete_post)
-
-// Item details
-router.get('/item/:id', item_controller.item_details);
 
 
 module.exports = router;

@@ -9,7 +9,7 @@ exports.index = function (req, res, next) {
 
     async.parallel({
         category_count: function(callback) {
-            category.countDocuments({}, callback)
+            Category.countDocuments({}, callback)
         },
         item_count: function(callback) {
             Item.countDocuments({}, callback);
@@ -31,7 +31,7 @@ exports.category_list = function (req, res, next) {
 }
 
 // Display Category Details
-exports.category_detail = [
+exports.category_details = function(req, res, next) {
     async.parallel({
         category: function(callback) {
             Category.findById(req.params.id).exec(callback)
@@ -47,7 +47,8 @@ exports.category_detail = [
             res.render('category_details', { ...results, })
         }
     })
-]
+}
+
 
 // Create Category
 exports.category_create_get = function (req, res, next) {
@@ -56,8 +57,9 @@ exports.category_create_get = function (req, res, next) {
 
 exports.category_create_post = [
     body('name').trim().isLength({ min: 1 }).escape().withMessage('Name must be specified')
-        .isAlphanumeric().withMessage('First name has non alphanumeric characters.'),
-
+        .isAlphanumeric().withMessage('Name has non alphanumeric characters.'),
+    body('description').trim().escape().isAlphanumeric().withMessage('Name has non alphanumeric characters.'),
+    
     // process request after sanitization
     (req, res, next) => {
 
@@ -140,8 +142,9 @@ exports.category_update_get = function(req, res, next) {
 
 exports.category_update_post = [
     body('name').trim().isLength({ min: 1 }).escape().withMessage('Name must be specified')
-        .isAlphanumeric().withMessage('First name has non alphanumeric characters.'),
-
+        .isAlphanumeric().withMessage('Name has non alphanumeric characters.'),
+    body('description').trim().escape()
+        .isAlphanumeric().withMessage('Description has non alphanumeric characters.'),
     // process request after sanitization
     (req, res, next) => {
 
