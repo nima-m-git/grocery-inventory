@@ -57,9 +57,8 @@ exports.category_create_get = function (req, res, next) {
 }
 
 exports.category_create_post = [
-    body('name').trim().isLength({ min: 1 }).escape().withMessage('Name must be specified')
-        .isAlphanumeric().withMessage('Name has non alphanumeric characters.'),
-    body('description').trim().escape().isAlphanumeric().withMessage('Name has non alphanumeric characters.'),
+    body('name', 'Name must be specified').trim().isLength({ min: 1 }).escape(),
+    body('description').trim().escape(),
     
     // process request after sanitization
     (req, res, next) => {
@@ -77,7 +76,7 @@ exports.category_create_post = [
             category.save(function(err) {
                 if (err) { return next(err); }
                 // render category detail page
-                res.redirect('/inventory/category/:id');
+                res.redirect(category.url);
             })
         }
     }
@@ -113,7 +112,7 @@ exports.category_delete_post = function (req, res, next) {
     },
     function(err, results) {
         if (err) { return next(err); }
-        if (results.categorys_items) {
+        if (results.categorys_items.length) {
             var err = new Error('Categorys items must be removed first: ');
             res.render('category_delete', { err, ...results })
         } else {

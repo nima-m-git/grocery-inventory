@@ -1,0 +1,23 @@
+extend layout
+
+block content
+
+    h1 Delete #{category.name}?
+    p
+        i= category.description
+
+    if categorys_items.length
+        p Delete categorys items first:
+        ul
+            each item in categorys_items
+                li 
+                    a(href=item.url) #{item.name}
+
+    form(method='POST' action='')
+      div.form-group
+        input#categoryid.form-control(type='hidden',name='categoryid', required='true', value=category._id )
+
+      button.btn.btn-primary(type='submit') Delete 
+      = ' '
+      a.btn.btn-primary(href=category.url) Back
+

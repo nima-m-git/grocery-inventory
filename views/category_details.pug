@@ -3,7 +3,8 @@ extends layout
 block content
 
     h2 #{category.name}
-    p #{category.description}
+    p 
+        i= category.description
     
     p Items:
     ul
@@ -12,3 +13,9 @@ block content
                 a(href=item.url) #{item.name}
         else
             li none
+    
+    hr
+    p
+        a(href=category.url+'/delete') Delete
+    p
+        a(href=category.url+'update') Update

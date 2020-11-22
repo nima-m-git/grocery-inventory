@@ -1,0 +1,16 @@
+extend layout
+
+block content
+
+    h1 Delete #{item.name}?
+    p
+        i= item.description
+
+    form(method='POST' action='')
+      div.form-group
+        input#itemid.form-control(type='hidden',name='itemid', required='true', value=item._id )
+
+      button.btn.btn-primary(type='submit') Delete 
+      = ' '
+      a.btn.btn-primary(href=item.url) Back
+

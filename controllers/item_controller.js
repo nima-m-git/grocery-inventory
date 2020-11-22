@@ -1,7 +1,9 @@
 var async = require('async');
 var Item = require('../models/item');
+var Category = require('../models/category');
 
 const { body, validationResult } = require('express-validator');
+const category = require('../models/category');
 
 
 // Display all Items
@@ -35,8 +37,15 @@ exports.item_details = function(req, res, next) {
 
 
 // Create Item
-exports.item_create_get = function (req, res, next) {
-    res.render('item_form', { title: 'New Item' });
+exports.item_create_get = function(req, res, next) {
+    async.parallel({
+        categories: function(callback) {
+            Category.find(callback);
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+        res.render('item_form', { title: 'New Item', ...results, });
+    });
 }
 
 exports.item_create_post = [
@@ -52,7 +61,7 @@ exports.item_create_post = [
 
         const errors = validationResult(req);
 
-        const item = new item({
+        const item = new Item({
             ...req.body
         });
 
@@ -63,7 +72,7 @@ exports.item_create_post = [
             item.save(function(err) {
                 if (err) { return next(err); }
                 // render item detail page
-                res.redirect('/inventory/item/:id');
+                res.redirect(item.url);
             })
         }
     }
@@ -73,7 +82,7 @@ exports.item_create_post = [
 exports.item_delete_get = function (req, res, next) {
     async.parallel({
         item: function(callback) {
-            item.findById(req.params.id).exec(callback)
+            Item.findById(req.params.id).exec(callback)
         },
     },
     function(err, results) {
@@ -89,12 +98,12 @@ exports.item_delete_get = function (req, res, next) {
 exports.item_delete_post = function (req, res, next) {
     async.parallel({
         item: function(callback) {
-            item.findById(req.params.id).exec(callback)
+            Item.findById(req.params.id).exec(callback)
         },
     },
     function(err, results) {
         if (err) { return next(err); }
-        item.findByIdAndRemove(req.params.id, function(err) {
+        Item.findByIdAndRemove(req.params.id, function(err) {
             if (err) { return next(err); }
             res.redirect('/inventory/items');
         });
