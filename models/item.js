@@ -7,7 +7,7 @@ var ItemSchema = new Schema({
     description: { type: String, maxlength: 300 },
     price: { type: Number, required: true },
     stock: { type: Number, required: true }, 
-    category: { type: Schema.Types.ObjectId, ref:'Category', required: true },
+    category: [{ type: Schema.Types.ObjectId, ref:'Category', required: true }],
 });
 
 // Virtual for author's URL

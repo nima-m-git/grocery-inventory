@@ -3,6 +3,7 @@ extends layout
 block content
     h1= title
 
+    hr
     form(method='POST' action='')
         .form-group
             label(for='name') Name:
@@ -11,8 +12,8 @@ block content
             label(for='description') Description:
             input#description.form-control(type='textarea' name='description' value=((category) ? category.description : ''))
         button.btn.btn-primary(type='submit') Submit
-
+        
     if errors 
         ul
             for error in errors
-                li= error.msg
+                li!= error.msg

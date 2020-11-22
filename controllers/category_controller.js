@@ -141,10 +141,8 @@ exports.category_update_get = function(req, res, next) {
 }
 
 exports.category_update_post = [
-    body('name').trim().isLength({ min: 1 }).escape().withMessage('Name must be specified')
-        .isAlphanumeric().withMessage('Name has non alphanumeric characters.'),
-    body('description').trim().escape()
-        .isAlphanumeric().withMessage('Description has non alphanumeric characters.'),
+    body('name', 'Name must be specified').trim().isLength({ min: 1 }).escape(),
+    body('description').trim().escape(),
     // process request after sanitization
     (req, res, next) => {
 

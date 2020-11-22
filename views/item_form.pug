@@ -2,30 +2,32 @@ extends layout
 
 block content
     h1= title
-
+    hr
+    
     form(method='POST' action='')
         .form-group
             label(for='name') Name:
-            input#name.form-control(type='text' name='name' required='true' value=((category) ? category.name : ''))
+            input#name.form-control(type='text' name='name' required='true' value=((item) ? item.name : ''))
         .form-group
             label(for='description') Description:
-            input#description.form-control(type='textarea' name='description' value=((category) ? category.description : ''))
+            input#description.form-control(type='textarea' name='description' value=((item) ? item.description : ''))
         .form-group
             label(for='price') Price:
-            input#price.form-control(type='text' name='price' required='true' value=((category) ? category.price : ''))
+            input#price.form-control(type='text' name='price' required='true' value=((item) ? item.price : ''))
         .form-group
             label(for='stock') Stock:
-            input#stock.form-control(type='text' name='stock' required='true' value=((category) ? category.stock : ''))
+            input#stock.form-control(type='text' name='stock' required='true' value=((item) ? item.stock : ''))
         .form-group
             label Category:
             div
                 for category in categories
                     div(style='display: inline; padding-right:10px;')
-                    input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id, checked=category.checked )
-                    label(for=category._id) #{category.name}
+                        input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id, checked=category.checked )
+                        label(for=category._id) #{category.name}
         button.btn.btn-primary(type='submit') Submit
-        
+    
+    hr
     if errors 
         ul
-            for error in errors
-                li= error.msg
+            each error in errors
+                li!= error.msg
