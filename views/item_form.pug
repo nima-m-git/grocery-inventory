@@ -24,10 +24,15 @@ block content
                     div(style='display: inline; padding-right:10px;')
                         input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id, checked=category.checked )
                         label(for=category._id) #{category.name}
-
         .form-group
             label(for='image') Image:
             input#image.form-control(type='file' name='image')
+        if item
+            if item.image
+                img(src=item.image.url alt='item image')
+                .form-group
+                    label(for='remove-image') Remove Image? 
+                    input.checkbox-input(type='checkbox', name='remove-image', id='remove-image', value='remove-image')
 
         button.btn.btn-primary(type='submit') Submit
     

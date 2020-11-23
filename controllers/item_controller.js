@@ -1,7 +1,6 @@
 const async = require('async');
 const Item = require('../models/item');
 const Category = require('../models/category');
-const Image = require('../models/image');
 
 const { body, validationResult } = require('express-validator');
 const { upload } = require('../upload');
@@ -12,7 +11,6 @@ const path = require('path');
 
 // Display all Items
 exports.item_list = function (req, res, next) {
-
     Item.find()
         .sort([['name', 'ascending']])
         .populate('image')
@@ -80,12 +78,16 @@ exports.item_create_post = [
 
         const errors = validationResult(req);
 
-        const item = new Item({
-            ...req.body,
-        });
+        const item = (req.file) ?
+            new Item({
+                ...req.body,
+                ...req.file,
+            })
+            : new Item({
+                ...req.body,
+            })
 
         if (!errors.isEmpty()) {
-            console.log('there are errors')
             // there are errors, rerender
             async.parallel({
                 categories: function(callback) {
@@ -101,22 +103,21 @@ exports.item_create_post = [
                         }
                     })
                 })
-
                 res.render('item_form', { title: 'New item', ...errors, item, ...results});
             })
 
         } else {
-            if (req.file) {
-                let image = new Image({
-                    filename: req.file.filename,
-                    content_type: req.file.mimetype
-                });
+            // if (req.file) {
+            //     let image = new Image({
+            //         filename: req.file.filename,
+            //         content_type: req.file.mimetype
+            //     });
 
-                item.image = image._id;
-                image.save(function(err) {
-                    if (err) { return next(err); }
-                })
-            }
+            //     item.image = image._id;
+            //     image.save(function(err) {
+            //         if (err) { return next(err); }
+            //     })
+            // }
 
             item.save(function(err) {
                 if (err) { return next(err); }
@@ -170,7 +171,7 @@ exports.item_delete_post = function (req, res, next) {
 exports.item_update_get = function(req, res, next) {
     async.parallel({
         item: function(callback) {
-            Item.findById(req.params.id).populate('category').exec(callback);
+            Item.findById(req.params.id).populate('category image').exec(callback);
         },
         categories: function(callback){
             Category.find(callback);
@@ -233,6 +234,10 @@ exports.item_update_post = [
                 if (err) { return next(err); }
                 res.redirect(theitem.url);
             });
+
+            if (req.body.remove-image) {
+                Image.findByIdAndRemove
+            }
         }
     }
 ]

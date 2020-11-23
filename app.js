@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const multer = require('multer');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -18,6 +19,28 @@ var mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+
+// Image configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+      console.log(file);
+      cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
+      cb(null, true);
+  } else {
+      cb(null, false);
+  }
+}
+
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 
 // view engine setup
