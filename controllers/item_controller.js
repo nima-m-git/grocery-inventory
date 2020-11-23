@@ -152,11 +152,18 @@ exports.item_delete_post = function (req, res, next) {
     },
     function(err, results) {
         if (err) { return next(err); }
+
         Item.findByIdAndRemove(req.params.id, function(err) {
             if (err) { return next(err); }
+
+            // Remove associated Image
+            Image.findByIdAndRemove(results.item.image, function(err) {
+                if (err) { return next(err); }
+            })
+
             res.redirect('/inventory/items');
         });
-    })
+    });
 }
 
 // Update Item
