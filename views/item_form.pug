@@ -28,8 +28,8 @@ block content
             label(for='image') Image:
             input#image.form-control(type='file' name='image')
         if item
-            if item.image
-                img(src=item.image.url alt='item image')
+            if item.filename
+                img(src=item.imageurl alt='item image')
                 .form-group
                     label(for='remove-image') Remove Image? 
                     input.checkbox-input(type='checkbox', name='remove-image', id='remove-image', value='remove-image')

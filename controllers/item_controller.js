@@ -9,6 +9,25 @@ const fs = require('fs');
 const path = require('path');
 
 
+function deleteImageIfExists(itemID) {
+    async.parallel({
+        oldItem: function(callback) {
+            Item.findById(itemID).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+
+        if (results.oldItem.filename) {
+            fs.unlink(
+                path.resolve(__dirname, '../public/images/' + results.oldItem.filename),
+                function(err) {
+                    if (err) throw new Error(err);
+                }
+            );
+        }
+    }) 
+}
+
 // Display all Items
 exports.item_list = function (req, res, next) {
     Item.find()
@@ -52,7 +71,6 @@ exports.item_create_get = function(req, res, next) {
     });
 }
 
-
 exports.item_create_post = [
     // image upload
     upload.single('image'),
@@ -68,7 +86,6 @@ exports.item_create_post = [
     (req, res, next) => {
         if (!(req.body.category instanceof Array)) {
             req.body.category = new Array(req.body.category);
-            console.log(req.body)
         }
         next();
     },
@@ -107,18 +124,6 @@ exports.item_create_post = [
             })
 
         } else {
-            // if (req.file) {
-            //     let image = new Image({
-            //         filename: req.file.filename,
-            //         content_type: req.file.mimetype
-            //     });
-
-            //     item.image = image._id;
-            //     image.save(function(err) {
-            //         if (err) { return next(err); }
-            //     })
-            // }
-
             item.save(function(err) {
                 if (err) { return next(err); }
                 // render item detail page
@@ -127,6 +132,7 @@ exports.item_create_post = [
         }
     }
 ]
+
 
 // Delete Item
 exports.item_delete_get = function (req, res, next) {
@@ -144,28 +150,15 @@ exports.item_delete_get = function (req, res, next) {
     })
 }
 
-
 exports.item_delete_post = function (req, res, next) {
-    async.parallel({
-        item: function(callback) {
-            Item.findById(req.params.id).exec(callback)
-        },
-    },
-    function(err, results) {
+    deleteImageIfExists(req.params.id);
+    
+    Item.findByIdAndRemove(req.params.id, function(err) {
         if (err) { return next(err); }
-
-        Item.findByIdAndRemove(req.params.id, function(err) {
-            if (err) { return next(err); }
-
-            // Remove associated Image
-            Image.findByIdAndRemove(results.item.image, function(err) {
-                if (err) { return next(err); }
-            })
-
-            res.redirect('/inventory/items');
-        });
+        res.redirect('/inventory/items');
     });
 }
+
 
 // Update Item
 exports.item_update_get = function(req, res, next) {
@@ -197,6 +190,9 @@ exports.item_update_get = function(req, res, next) {
 
 
 exports.item_update_post = [
+    // image upload
+    upload.single('image'),
+
     // sanitize and validate fields
     body('name', 'Name must be specified').trim().isLength({ min: 1 }).escape(),
     body('price', 'Price must be specified').trim().isLength({ min: 1 }).escape().isNumeric(),
@@ -215,12 +211,19 @@ exports.item_update_post = [
     (req, res, next) => {
         const errors = validationResult(req);
 
-        const item = new Item({
-            ...req.body,
-            _id: req.params.id
-        });
+        const item = (req.file) ?
+            new Item({
+                ...req.body,
+                ...req.file,
+                _id: req.params.id
+            })
+            : new Item({
+                ...req.body,
+                _id: req.params.id,
+            })
 
         if (!errors.isEmpty()) {
+            // there are errors, rerender
             async.parallel({
                 categories: function(callback) {
                     Category.find(callback);
@@ -230,14 +233,15 @@ exports.item_update_post = [
                 res.render('item_form', { title: 'Update Item', ...results, item, ...errors });
             })
         } else {
+            // remove old image if selected, or new image
+            if (req.body['remove-image'] || req.file) {
+                deleteImageIfExists(req.params.id);
+            }
+
             Item.findByIdAndUpdate(req.params.id, item, {}, function(err, theitem) {
                 if (err) { return next(err); }
                 res.redirect(theitem.url);
             });
-
-            if (req.body.remove-image) {
-                Image.findByIdAndRemove
-            }
         }
     }
 ]
