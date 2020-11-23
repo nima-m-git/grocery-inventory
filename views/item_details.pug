@@ -5,6 +5,10 @@ block content
     h2 !{item.name}
     p
         i !{item.description}
+        
+    if item.image
+        img(src=item.image.url alt='item image')
+
     hr
     p Price: $#{item.price}/lb
     p Stock: #{item.stock}

@@ -1,10 +1,13 @@
-var async = require('async');
-var Item = require('../models/item');
-var Category = require('../models/category');
+const async = require('async');
+const Item = require('../models/item');
+const Category = require('../models/category');
+const Image = require('../models/image');
 
 const { body, validationResult } = require('express-validator');
-const category = require('../models/category');
-const item = require('../models/item');
+const { upload } = require('../upload');
+
+const fs = require('fs');
+const path = require('path');
 
 
 // Display all Items
@@ -12,6 +15,7 @@ exports.item_list = function (req, res, next) {
 
     Item.find()
         .sort([['name', 'ascending']])
+        .populate('image')
         .exec(function (err, item_list) {
             if (err) { return next(err); }
             res.render('item_list', { item_list, });
@@ -24,6 +28,7 @@ exports.item_details = function(req, res, next) {
         item: function(callback) {
             Item.findById(req.params.id)
             .populate('category')
+            .populate('image')
             .exec(callback)
         },
     }, function(err, results) {
@@ -31,7 +36,6 @@ exports.item_details = function(req, res, next) {
         if (!results.item) {
             res.redirect('/inventory/items');
         } else {
-            console.log(results.item.category)
             res.render('item_details', { ...results, })
         }
     })
@@ -52,19 +56,22 @@ exports.item_create_get = function(req, res, next) {
 
 
 exports.item_create_post = [
-    body('name').trim().isLength({ min: 1 }).escape().withMessage('Name must be specified'),
+    // image upload
+    upload.single('image'),
+
+    // validate fields
+    body('name', 'Name must be specified').trim().isLength({ min: 1 }).escape(),
     body('description').trim().escape(),
-    body('price', 'Price must be specified').trim().isLength({ min: 1 }).escape().isNumeric(),
-    body('stock', 'Stock must be specified').trim().isLength({ min: 1 }).escape().isNumeric(),
+    body('price', 'Price must be a number').trim().isLength({ min: 1 }).escape().isNumeric(),
+    body('stock', 'Stock must be a number').trim().isLength({ min: 1 }).escape().isNumeric(),
     body('category').notEmpty().withMessage('category must be selected'),
 
     // convert category to array
     (req, res, next) => {
         if (!(req.body.category instanceof Array)) {
             req.body.category = new Array(req.body.category);
-            console.log(req.body.category)
+            console.log(req.body)
         }
-
         next();
     },
 
@@ -78,6 +85,8 @@ exports.item_create_post = [
         });
 
         if (!errors.isEmpty()) {
+            console.log('there are errors')
+            // there are errors, rerender
             async.parallel({
                 categories: function(callback) {
                     Category.find(callback);
@@ -95,7 +104,20 @@ exports.item_create_post = [
 
                 res.render('item_form', { title: 'New item', ...errors, item, ...results});
             })
+
         } else {
+            if (req.file) {
+                let image = new Image({
+                    filename: req.file.filename,
+                    content_type: req.file.mimetype
+                });
+
+                item.image = image._id;
+                image.save(function(err) {
+                    if (err) { return next(err); }
+                })
+            }
+
             item.save(function(err) {
                 if (err) { return next(err); }
                 // render item detail page
@@ -175,7 +197,6 @@ exports.item_update_post = [
 
     // convert category to array
     (req, res, next) => {
-        console.log(req.body.category)
         if (!(req.body.category instanceof Array)) {
             req.body.category = new Array(req.body.category);
         }
@@ -192,14 +213,12 @@ exports.item_update_post = [
         });
 
         if (!errors.isEmpty()) {
-            console.log(errors)
             async.parallel({
                 categories: function(callback) {
                     Category.find(callback);
                 },
             }, function(err, results) {
                 if (err) { return next(err); }
-                console.log(errors)
                 res.render('item_form', { title: 'Update Item', ...results, item, ...errors });
             })
         } else {
