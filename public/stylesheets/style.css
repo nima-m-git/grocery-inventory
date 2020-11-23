@@ -12,3 +12,8 @@ img {
   height: 100px;
   width: 100px;
 }
+
+.img-small {
+  height: 50px;
+  width: 50px;
+}

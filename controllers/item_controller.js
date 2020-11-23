@@ -11,7 +11,7 @@ const path = require('path');
 
 async function deleteImageIfExists(id) {
     const oldItem = await Item.findById(id);
-    console.log({ oldItem, })
+
     if (oldItem.filename) {
         fs.unlink(
             path.resolve(__dirname, '../public/images/' + oldItem.filename),
@@ -227,7 +227,6 @@ exports.item_update_post = [
 
             // remove old image if selected, or new image
             if (req.body['remove-image'] || req.file) {
-                console.log({ item, })
                 await deleteImageIfExists(req.params.id);
             }
 
