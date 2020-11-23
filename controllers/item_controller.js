@@ -9,24 +9,19 @@ const fs = require('fs');
 const path = require('path');
 
 
-function deleteImageIfExists(itemID) {
-    async.parallel({
-        oldItem: function(callback) {
-            Item.findById(itemID).exec(callback);
-        },
-    }, function(err, results) {
-        if (err) { return next(err); }
-
-        if (results.oldItem.filename) {
-            fs.unlink(
-                path.resolve(__dirname, '../public/images/' + results.oldItem.filename),
-                function(err) {
-                    if (err) throw new Error(err);
-                }
-            );
-        }
-    }) 
+async function deleteImageIfExists(id) {
+    const oldItem = await Item.findById(id);
+    console.log({ oldItem, })
+    if (oldItem.filename) {
+        fs.unlink(
+            path.resolve(__dirname, '../public/images/' + oldItem.filename),
+            function(err) {
+                if (err) throw new Error(err);
+            }
+        );
+    }
 }
+
 
 // Display all Items
 exports.item_list = function (req, res, next) {
@@ -208,17 +203,13 @@ exports.item_update_post = [
     },
 
     // process request after sanitization
-    (req, res, next) => {
+    async (req, res, next) => {
         const errors = validationResult(req);
 
-        const item = (req.file) ?
-            new Item({
+        const item = new Item({
                 ...req.body,
                 ...req.file,
-                _id: req.params.id
-            })
-            : new Item({
-                ...req.body,
+                filename: (req.file) ? req.file.filename : null,
                 _id: req.params.id,
             })
 
@@ -233,9 +224,11 @@ exports.item_update_post = [
                 res.render('item_form', { title: 'Update Item', ...results, item, ...errors });
             })
         } else {
+
             // remove old image if selected, or new image
             if (req.body['remove-image'] || req.file) {
-                deleteImageIfExists(req.params.id);
+                console.log({ item, })
+                await deleteImageIfExists(req.params.id);
             }
 
             Item.findByIdAndUpdate(req.params.id, item, {}, function(err, theitem) {
