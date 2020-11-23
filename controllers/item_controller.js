@@ -145,8 +145,8 @@ exports.item_delete_get = function (req, res, next) {
     })
 }
 
-exports.item_delete_post = function (req, res, next) {
-    deleteImageIfExists(req.params.id);
+exports.item_delete_post = async function (req, res, next) {
+    await deleteImageIfExists(req.params.id);
     
     Item.findByIdAndRemove(req.params.id, function(err) {
         if (err) { return next(err); }
