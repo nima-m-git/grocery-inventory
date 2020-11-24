@@ -1,12 +1,13 @@
 extends layout
 
 block content
-    h1 Categories:
+    h2 Categories:
 
-    ul
+    .container-fluid
+    .d-flex.flex-wrap
         each category in category_list
-            li 
-                a(href=category.url) !{category.name}
+            div.card.text-center(style='width: 12rem; height: 3rem; margin: 0.5rem;') 
+                a.card-header(href=category.url) !{category.name}
         
         else
             li There are no categories
