@@ -7,13 +7,20 @@ block content
     form(method='POST' action='')
         .form-group
             label(for='name') Name:
-            input#name.form-control(type='text' name='name' required='true' value=!((category) ? category.name : ''))
+            input#name.form-control(type='text' name='name' required='true' value!=((category) ? category.name : ''))
         .form-group
             label(for='description') Description:
-            input#description.form-control(type='textarea' name='description' value!=((category) ? category.description : ''))
+            input#description.form-control(type='text' name='description' value!=((category) ? category.description : ''))
+        if requirePass
+            .form-group
+                label(for='password') Password: 
+                input#password.form-control(type='password' name='password' required='true')
+
         button.btn.btn-primary(type='submit') Submit
         
     if errors 
         ul
             for error in errors
                 li!= error.msg
+    if passError
+        p !{passError}

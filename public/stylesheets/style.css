@@ -1,3 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: rgb(238, 238, 238);
+}
+
 .sidebar-nav {
   margin-top: 20px;
   padding: 0;
@@ -13,7 +22,11 @@ img {
   width: 100px;
 }
 
-.img-small {
-  height: 50px;
-  width: 50px;
+
+/* Header */
+.page-header {
+  background: linear-gradient(rgba(194, 201, 178, 0.61), rgba(175, 197, 176, 0.644));
+  padding: 1em;
+  margin-bottom: 0.5em;
+  box-shadow: 0 0 5px 0 #888;
 }

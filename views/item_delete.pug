@@ -7,10 +7,14 @@ block content
         i !{item.description}
 
     form(method='POST' action='')
-      div.form-group
+      .form-group
         input#itemid.form-control(type='hidden',name='itemid', required='true', value=item._id )
-
+      .form-group
+          label(for='password') Password: 
+          input#password.form-control(type='password' name='password' required='true')
       button.btn.btn-primary(type='submit') Delete 
       = ' '
       a.btn.btn-primary(href=item.url) Back
 
+    if err
+      p !{err}

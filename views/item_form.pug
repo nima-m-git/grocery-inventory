@@ -7,7 +7,7 @@ block content
     form(method='POST' action='' enctype='multipart/form-data')
         .form-group
             label(for='name') Name:
-            input#name.form-control(type='text' name='name' required='true' value=!((item) ? item.name : ''))
+            input#name.form-control(type='text' name='name' required='true' value!=((item) ? item.name : ''))
         .form-group
             label(for='description') Description:
             input#description.form-control(type='textarea' name='description' value!=((item) ? item.description : ''))
@@ -33,6 +33,10 @@ block content
         .form-group
             label(for='image') Image:
             input#image.form-control(type='file' name='image')
+        if requirePass
+            .form-group
+                label(for='password') Password: 
+                input#password.form-control(type='password' name='password' required='true')
             
         button.btn.btn-primary(type='submit') Submit
     
@@ -41,3 +45,5 @@ block content
         ul
             each error in errors
                 li!= error.msg
+    if passError
+        p !{passError}

@@ -14,10 +14,15 @@ block content
                     a(href=item.url) #{item.name}
 
     form(method='POST' action='')
-      div.form-group
-        input#categoryid.form-control(type='hidden',name='categoryid', required='true', value=category._id )
+        .form-group
+            input#categoryid.form-control(type='hidden',name='categoryid', required='true', value=category._id )
+        .form-group
+            label(for='password') Password: 
+            input#password.form-control(type='password' name='password' required='true')
 
-      button.btn.btn-primary(type='submit') Delete 
-      = ' '
-      a.btn.btn-primary(href=category.url) Back
+        button.btn.btn-primary(type='submit') Delete 
+        = ' '
+        a.btn.btn-primary(href=category.url) Back
 
+    if err 
+        p !{err}

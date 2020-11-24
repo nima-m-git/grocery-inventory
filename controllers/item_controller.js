@@ -3,6 +3,7 @@ const Item = require('../models/item');
 const Category = require('../models/category');
 
 const { body, validationResult } = require('express-validator');
+const password = process.env.ADMINPASSWORD || 'password';
 const { upload } = require('../upload');
 
 const fs = require('fs');
@@ -146,12 +147,17 @@ exports.item_delete_get = function (req, res, next) {
 }
 
 exports.item_delete_post = async function (req, res, next) {
-    await deleteImageIfExists(req.params.id);
-    
-    Item.findByIdAndRemove(req.params.id, function(err) {
-        if (err) { return next(err); }
-        res.redirect('/inventory/items');
-    });
+    if (req.body.password !== password) {
+        var err = new Error('Invalid admin password');
+        res.render('item_delete', { err, item: {...req.body}, })
+    } else {
+        await deleteImageIfExists(req.params.id);
+        
+        Item.findByIdAndRemove(req.params.id, function(err) {
+            if (err) { return next(err); }
+            res.redirect('/inventory/items');
+        });
+    }
 }
 
 
@@ -178,9 +184,9 @@ exports.item_update_get = function(req, res, next) {
                     }
                 })
             })
-            res.render('item_form', { title: 'Update Item', ...results, })
+            res.render('item_form', { title: 'Update Item', ...results, requirePass: true,})
         }
-    })
+    });
 }
 
 
@@ -207,13 +213,13 @@ exports.item_update_post = [
         const errors = validationResult(req);
 
         const item = new Item({
-                ...req.body,
-                ...req.file,
-                filename: (req.file) ? req.file.filename : null,
-                _id: req.params.id,
-            })
+            ...req.body,
+            ...req.file,
+            filename: (req.file) ? req.file.filename : null,
+            _id: req.params.id,
+        })
 
-        if (!errors.isEmpty()) {
+        if (!errors.isEmpty() || req.body.password !== password) {
             // there are errors, rerender
             async.parallel({
                 categories: function(callback) {
@@ -221,8 +227,20 @@ exports.item_update_post = [
                 },
             }, function(err, results) {
                 if (err) { return next(err); }
-                res.render('item_form', { title: 'Update Item', ...results, item, ...errors });
-            })
+
+                results.categories.forEach(category => {
+                    item.category.forEach(cat => {
+                        if (category._id.toString() === cat._id.toString()) {
+                            category.checked = 'true';
+                        }
+                    })
+                })
+                let passError;
+                if (req.body.password !== password) {
+                    passError = new Error('Invalid admin password');
+                }
+                res.render('item_form', { title: 'Update Item', ...results, item, ...errors, passError, requirePass: true, });
+            });
         } else {
 
             // remove old image if selected, or new image
