@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const multer = require('multer');
+require('dotenv').config()
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,8 +14,7 @@ var app = express();
 
 //Set up mongoose connection
 var mongoose = require('mongoose');
-var dev_db_url = 'mongodb+srv://admin:adminpassword@cluster0.pzjrw.mongodb.net/grocery_inventory?retryWrites=true&w=majority';
-var mongoDB = process.env.MONGODB_URI || dev_db_url;
+var mongoDB = process.env.MONGODB_URI || process.env.DEV_DB;
 
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 var db = mongoose.connection;
