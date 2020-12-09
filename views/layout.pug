@@ -9,8 +9,18 @@ html
     script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js", integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV", crossorigin="anonymous")
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    .page-header.text-center
-      h1 Grocery Store
+    .navbar.d-flex.flex-column.flex-md-row.align-items-center.p-3.px-md-4
+      a.mr-md-auto.logo(href='/') 
+        h3.my-o.mr-md-auto.i Grocery Inventory
+
+      nav.my-2.my-md-0.mr-md-3
+        if user
+          a.p-2(href='/users/membership') Admin Page
+          a.p-2(href='/users/logout') Log Out
+        else
+          a.p-2(href='/users/login') Log In  
+          a.p-2(href='/users/signup') Register
+
     div(class='container-fluid')
       div(class='row')
         div(class='col-sm-2')

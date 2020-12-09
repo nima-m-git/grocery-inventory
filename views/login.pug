@@ -1,0 +1,19 @@
+extend layout
+
+block content
+    form(action='login' method='post')
+        h2.text-center Please log in.
+        .form-group 
+            label(for='email') Email: 
+            input.form-control(name='email' type='text')
+        .form-group
+            label(for='password') Password: 
+            input.form-control(name='password' type='password')
+        .text-center
+            button.btn.btn-secondary(type='submit') Log In
+            div or 
+                a(href='/users/signup') Sign Up.        
+        
+        if error
+            p.text-center.mt-3.mb-1= error
+

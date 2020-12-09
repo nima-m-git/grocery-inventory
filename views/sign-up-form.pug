@@ -1,0 +1,35 @@
+extends layout
+
+block content
+    form(action='' method='POST')
+        h2.text-center Employee Register
+        .form-group
+            label(for='firstName') First Name:
+            input.form-control(name='firstName' type='text' value!=((firstName) ? firstName : ''))
+
+        .form-group
+            label(for='lastName') Last Name:
+            input.form-control(name='lastName' type='text' value!=((lastName) ? lastName : ''))
+
+        .form-group
+            label(for='email') Email:
+            input.form-control(name='email' type='text' value!=((email) ? email : ''))
+
+        .form-group
+            label(for='password') Password:
+            input.form-control(name='password' type='password')
+
+        .form-group
+            label(for='confirm-password') Confirm Password:
+            input.form-control(name='confirm-password' type='password') 
+
+        .text-center
+            button.btn.btn-secondary(type='submit') Register
+
+    hr
+    if errors 
+        ul
+            each error in errors
+                li!= error.msg
+    if passError
+        p !{passError}

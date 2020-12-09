@@ -11,10 +11,6 @@ block content
         .form-group
             label(for='description') Description:
             input#description.form-control(type='text' name='description' value!=((category) ? category.description : ''))
-        if requirePass
-            .form-group
-                label(for='password') Password: 
-                input#password.form-control(type='password' name='password' required='true')
 
         button.btn.btn-primary(type='submit') Submit
         
@@ -22,5 +18,3 @@ block content
         ul
             for error in errors
                 li!= error.msg
-    if passError
-        p !{passError}

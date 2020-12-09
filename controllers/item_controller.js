@@ -2,13 +2,13 @@ const async = require('async');
 const Item = require('../models/item');
 const Category = require('../models/category');
 
+
 const { body, validationResult } = require('express-validator');
 const password = process.env.ADMINPASSWORD || 'password';
 const { upload } = require('../upload');
 
 const fs = require('fs');
 const path = require('path');
-
 
 async function deleteImageIfExists(id) {
     const oldItem = await Item.findById(id);
@@ -88,7 +88,6 @@ exports.item_create_post = [
 
     // process request after sanitization
     (req, res, next) => {
-
         const errors = validationResult(req);
 
         const item = (req.file) ?
@@ -147,17 +146,12 @@ exports.item_delete_get = function (req, res, next) {
 }
 
 exports.item_delete_post = async function (req, res, next) {
-    if (req.body.password !== password) {
-        var err = new Error('Invalid admin password');
-        res.render('item_delete', { err, item: {...req.body}, })
-    } else {
-        await deleteImageIfExists(req.params.id);
-        
-        Item.findByIdAndRemove(req.params.id, function(err) {
-            if (err) { return next(err); }
-            res.redirect('/inventory/items');
-        });
-    }
+    await deleteImageIfExists(req.params.id);
+    
+    Item.findByIdAndRemove(req.params.id, function(err) {
+        if (err) { return next(err); }
+        res.redirect('/inventory/items');
+    });
 }
 
 
@@ -219,7 +213,7 @@ exports.item_update_post = [
             _id: req.params.id,
         })
 
-        if (!errors.isEmpty() || req.body.password !== password) {
+        if (!errors.isEmpty()) {
             // there are errors, rerender
             async.parallel({
                 categories: function(callback) {
@@ -235,11 +229,8 @@ exports.item_update_post = [
                         }
                     })
                 })
-                let passError;
-                if (req.body.password !== password) {
-                    passError = new Error('Invalid admin password');
-                }
-                res.render('item_form', { title: 'Update Item', ...results, item, ...errors, passError, requirePass: true, });
+
+                res.render('item_form', { title: 'Update Item', ...results, item, ...errors, });
             });
         } else {
 

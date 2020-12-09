@@ -1,13 +1,12 @@
-var async = require('async');
-var Category = require('../models/category');
-var Item = require('../models/item');
+const async = require('async');
+const Category = require('../models/category');
+const Item = require('../models/item');
 
 const { body, validationResult } = require('express-validator');
 const password = process.env.ADMINPASSWORD || 'password';
 
 // Inventory Index
 exports.index = function (req, res, next) {
-
     async.parallel({
         category_count: function(callback) {
             Category.countDocuments({}, callback)
@@ -23,7 +22,6 @@ exports.index = function (req, res, next) {
 
 // Display all categories
 exports.category_list = function (req, res, next) {
-
     Category.find()
         .sort([['name', 'ascending']])
         .exec(function (err, category_list) {
@@ -63,7 +61,6 @@ exports.category_create_post = [
     
     // process request after sanitization
     (req, res, next) => {
-
         const errors = validationResult(req);
 
         const category = new Category({
@@ -116,9 +113,11 @@ exports.category_delete_post = function (req, res, next) {
         if (results.categorys_items.length) {
             var err = new Error('Categorys items must be removed first: ');
             res.render('category_delete', { err, ...results })
+
         } else if (req.body.password !== password) {
             var err = new Error('Invalid admin password');
             res.render('category_delete', { err, ...results })
+
         } else {
             Category.findByIdAndRemove(req.params.id, function(err) {
                 if (err) { return next(err); }
@@ -156,14 +155,9 @@ exports.category_update_post = [
             _id: req.params.id
         });
 
-        let passError;
-        if (req.body.password !== password || !errors.isEmpty()) {
-            if (req.body.password !== password) {
-                passError = new Error('Invalid admin password');
-            }
+        if (!errors.isEmpty()) {
             res.render('category_form', { title: 'Update Category', ...errors, passError, category, requirePass: true, });
             return ;
-
         } else {
             Category.findByIdAndUpdate(req.params.id, category, {}, function(err, thecategory) {
                 if (err) { return next(err); }

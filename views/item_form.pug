@@ -33,10 +33,6 @@ block content
         .form-group
             label(for='image') Image:
             input#image.form-control(type='file' name='image')
-        if requirePass
-            .form-group
-                label(for='password') Password: 
-                input#password.form-control(type='password' name='password' required='true')
             
         button.btn.btn-primary(type='submit') Submit
     
@@ -45,5 +41,3 @@ block content
         ul
             each error in errors
                 li!= error.msg
-    if passError
-        p !{passError}

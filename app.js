@@ -1,23 +1,29 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const bcrypt = require('bcryptjs');
+const flash = require('connect-flash');
 const multer = require('multer');
 require('dotenv').config()
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var inventoryRouter = require('./routes/inventory');
+const User = require('./models/user');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const inventoryRouter = require('./routes/inventory');
 
-var app = express();
+const app = express();
 
 //Set up mongoose connection
-var mongoose = require('mongoose');
-var mongoDB = process.env.MONGODB_URI || process.env.DEV_DB;
+const mongoose = require('mongoose');
+const mongoDB = process.env.MONGODB_URI || process.env.DEV_DB;
 
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
-var db = mongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
@@ -46,6 +52,44 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+// passport user authentication
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+  },
+  (username, password, done) => {
+    User.findOne({ email: username, }, (err, user) => {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect email' });
+      }
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (res) {
+            // passwords match, log in user
+            return done(null, user)
+        } else {
+            // passwords dont match
+            return done(null, false, { message: 'Incorrect password'})
+        }
+      })
+    });
+  }
+));
+
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser((id, done) => User.findById(id, (err, user) => done(err, user)));
+
+app.use(flash());
+app.use(session({ secret: 'SOMESECRET', resave: false, saveUninitialized: true, }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
+// set user in locals to be used globally by all templates
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
 
 app.use(logger('dev'));
 app.use(express.json());

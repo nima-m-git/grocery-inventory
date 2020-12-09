@@ -1,0 +1,34 @@
+extends layout
+
+block content
+
+    h2 Administrative Status
+
+    p Welcome #{user.firstName + ' ' + user.lastName}
+
+    p Administrator status: 
+        span.membership-type #[strong #{admin || user.admin}]
+    p Only administrators can modify inventory.
+    
+    form.m-2(action='' method='POST')
+        .form-group.text-center
+            label(for='code') Admin Code: 
+            input.form-control(name='code' type='text')
+        .text-center
+            button.btn.btn-secondary(type='submit') Enter
+
+    | 
+
+    .admin-change-attempt
+        if attempted
+            if status
+                p You now have administrative priveleges.
+            else 
+                p Incorrect code
+    
+    .admin-tips
+        div Only a 
+            span.i manager 
+            span can get admin priveleges. 
+
+                    

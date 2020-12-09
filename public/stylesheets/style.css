@@ -30,3 +30,12 @@ img {
   margin-bottom: 0.5em;
   box-shadow: 0 0 5px 0 #888;
 }
+
+/* Form */
+form {
+  width: 450px;
+  margin: 0 auto;
+  padding: 1.5em;
+  background: rgba(255, 255, 255, 0.836);
+  border-radius: 10px;
+}
