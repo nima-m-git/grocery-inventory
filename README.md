@@ -10,11 +10,11 @@ Install node modules
 npm start development server
 `$ DEBUG=grovery-inventory:* npm start`
 
-Mongo DB source can be set as DEV_DB config variable for development, or MONGODB_URI for production
+Mongo DB source can be set as DEV_DB environmental variable for development, or MONGODB_URI for production
 
 ## Usage
 
-Registered users can create inventory items. Administrators can modify existing inventory items. Adminstrative status can be granted by entering code set as ADMIN_CODE config variable
+Registered users can create inventory items. Administrators can modify existing inventory items. Adminstrative status can be granted by entering code set as ADMIN_CODE environmental variable
 
 ## Authors
 
