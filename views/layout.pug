@@ -9,7 +9,7 @@ html
     script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js", integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV", crossorigin="anonymous")
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    .navbar.d-flex.flex-column.flex-md-row.align-items-center.p-3.px-md-4
+    .page-header.navbar.d-flex.flex-column.flex-md-row.align-items-center.p-3.px-md-4
       a.mr-md-auto.logo(href='/') 
         h3.my-o.mr-md-auto.i Grocery Inventory
 
@@ -21,11 +21,11 @@ html
           a.p-2(href='/users/login') Log In  
           a.p-2(href='/users/signup') Register
 
-    div(class='container-fluid')
-      div(class='row')
-        div(class='col-sm-2')
+    .container-fluid
+      .row
+        .col-sm-2
           block sidebar
-            ul(class='sidebar-nav')
+            ul.sidebar-nav
               li 
                 a(href='/inventory') Home
               li
@@ -38,5 +38,5 @@ html
               li 
                 a(href='/inventory/item/create') Add item
         
-        div(class='col-sm-10')
+        .col-sm-10.mt-5
           block content

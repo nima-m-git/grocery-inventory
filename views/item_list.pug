@@ -8,9 +8,12 @@ block content
             each item in item_list
                 div.card.text-center(style='width: 12rem; margin: 0.5rem;') 
                     a.card-header(href=item.url) !{item.name}
-                    if item.filename
-                        div
+                    .item-img
+                        if item.filename
                             img(src=item.imageurl alt='item image' style='padding: 0.3rem;')
+                        else 
+                            img(src='/images/no-image-icon.png' alt='no image' style='padding: 0.3rem;')
+                    
 
             else
                 div There are no items

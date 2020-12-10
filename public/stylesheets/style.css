@@ -22,10 +22,19 @@ img {
   width: 100px;
 }
 
+.i {
+  font-style: italic;
+}
+
+.container {
+  margin: 0 auto;
+  width: 450px;
+}
+
 
 /* Header */
 .page-header {
-  background: linear-gradient(rgba(194, 201, 178, 0.61), rgba(175, 197, 176, 0.644));
+  background: linear-gradient(rgba(174, 204, 186, 0.377), rgba(175, 197, 189, 0.404));
   padding: 1em;
   margin-bottom: 0.5em;
   box-shadow: 0 0 5px 0 #888;
@@ -38,4 +47,5 @@ form {
   padding: 1.5em;
   background: rgba(255, 255, 255, 0.836);
   border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
