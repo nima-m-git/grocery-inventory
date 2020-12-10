@@ -5,13 +5,12 @@ Grocery Store's inventory listed by items grouped in categories.
 ## Installing
 
 Install node modules
-```$ npm install```
+`$ npm install`
 
 npm start development server
-```$ DEBUG=grovery-inventory:* npm start```
+`$ DEBUG=grovery-inventory:* npm start`
 
 Mongo DB source can be set as DEV_DB config variable for development, or MONGODB_URI for production
-
 
 ## Usage
 
@@ -19,7 +18,7 @@ Registered users can create inventory items. Administrators can modify existing 
 
 ## Authors
 
-* **Nima Mirzaei** - [nima-m-git](https://github.com/nima-m-git)
+- **Nima Mirzaei** - [nima-m-git](https://github.com/nima-m-git)
 
 ## License
 

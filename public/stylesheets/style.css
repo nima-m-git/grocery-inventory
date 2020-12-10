@@ -14,7 +14,7 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
 
 img {
@@ -31,10 +31,12 @@ img {
   width: 450px;
 }
 
-
 /* Header */
 .page-header {
-  background: linear-gradient(rgba(174, 204, 186, 0.377), rgba(175, 197, 189, 0.404));
+  background: linear-gradient(
+    rgba(174, 204, 186, 0.377),
+    rgba(175, 197, 189, 0.404)
+  );
   padding: 1em;
   margin-bottom: 0.5em;
   box-shadow: 0 0 5px 0 #888;
