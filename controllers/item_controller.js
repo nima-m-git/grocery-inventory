@@ -97,12 +97,7 @@ exports.item_create_post = [
             });
           });
           // rerender form with prior inputs
-          res.render("item_form", {
-            title: "New item",
-            item,
-            categories,
-            ...errors,
-          });
+          res.render("item_form", { title: "New item", item, categories, ...errors, });
         })
         .catch(err => next(err));
 
@@ -154,12 +149,7 @@ exports.item_update_get = async (req, res, next) => {
           }
         });
       });
-      res.render("item_form", {
-        title: "Update Item",
-        item,
-        categories,
-        requirePass: true,
-      });
+      res.render("item_form", { title: "Update Item", item, categories, });
     }
   }
   catch (err) {
@@ -216,12 +206,7 @@ exports.item_update_post = [
             });
           });
 
-          res.render("item_form", {
-            title: "Update Item",
-            categories,
-            item,
-            ...errors,
-          });
+          res.render("item_form", { title: "Update Item", categories, item, ...errors, });
         })
         .catch(err => next(err));
 

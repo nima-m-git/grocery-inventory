@@ -6,63 +6,45 @@ const { body, validationResult } = require("express-validator");
 const password = process.env.ADMINPASSWORD || "password";
 
 // Inventory Index
-exports.index = function (req, res, next) {
-  async.parallel(
-    {
-      category_count: function (callback) {
-        Category.countDocuments({}, callback);
-      },
-      item_count: function (callback) {
-        Item.countDocuments({}, callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      res.render("index", { err, ...results });
-    }
-  );
+exports.index = async (req, res, next) => {
+  try {
+    const category_count = await Category.countDocuments({});
+    const item_count = await Item.countDocuments({});
+    res.render("index", { category_count, item_count });
+  }
+  catch (err) {
+    return next(err);
+  };
 };
 
 // Display all categories
-exports.category_list = function (req, res, next) {
+exports.category_list = (req, res, next) => {
   Category.find()
     .sort([["name", "ascending"]])
-    .exec(function (err, category_list) {
-      if (err) {
-        return next(err);
-      }
-      res.render("category_list", { category_list });
-    });
+    .exec()
+    .then(category_list => res.render("category_list", { category_list }))
+    .catch(err => next(err));
 };
 
 // Display Category Details
-exports.category_details = function (req, res, next) {
-  async.parallel(
-    {
-      category: function (callback) {
-        Category.findById(req.params.id).exec(callback);
-      },
-      category_items: function (callback) {
-        Item.find({ category: req.params.id }, "name").exec(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (!results.category) {
-        res.redirect("/inventory/categories");
-      } else {
-        res.render("category_details", { ...results });
-      }
+exports.category_details = async (req, res, next) => {
+  try {
+    const category = await Category.findById(req.params.id).exec();
+    const category_items = await Item.find({ category: req.params.id }, "name").exec();
+    
+    if (!category) {
+      res.redirect("/inventory/categories");
+    } else {
+      res.render("category_details", { category, category_items });
     }
-  );
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
 // Create Category
-exports.category_create_get = function (req, res, next) {
+exports.category_create_get = (req, res, next) => {
   res.render("category_form", { title: "New Category" });
 };
 
@@ -74,112 +56,72 @@ exports.category_create_post = [
   (req, res, next) => {
     const errors = validationResult(req);
 
-    const category = new Category({
-      ...req.body,
-    });
-
     if (!errors.isEmpty()) {
-      res.render("category_form", {
-        title: "New Category",
-        errors,
-        ...req.body,
-      });
-      return;
+      res.render("category_form", { title: "New Category", errors, ...req.body, });
     } else {
-      category.save(function (err) {
-        if (err) {
-          return next(err);
-        }
+      const category = new Category({
+        ...req.body,
+      })
+      .save()
         // render category detail page
-        res.redirect(category.url);
-      });
+        .then(category => res.redirect(category.url))
+        .catch(err => next(err));
     }
   },
 ];
 
 // Delete Category
-exports.category_delete_get = function (req, res, next) {
-  async.parallel(
-    {
-      category: function (callback) {
-        Category.findById(req.params.id).exec(callback);
-      },
-      categorys_items: function (callback) {
-        Item.find({ category: req.params.id }, "name").exec(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (!results.category) {
-        res.redirect("/inventory/categories");
-      }
-      res.render("category_delete", { ...results });
+exports.category_delete_get = async (req, res, next) => {
+  try {
+    const category = await Category.findById(req.params.id).exec();
+    const categorys_items = await Item.find({ category: req.params.id }, "name").exec();
+
+    if (!category) {
+      res.redirect("/inventory/categories");
     }
-  );
+    res.render("category_delete", { category, categorys_items });
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
-exports.category_delete_post = function (req, res, next) {
-  async.parallel(
-    {
-      category: function (callback) {
-        Category.findById(req.params.id).exec(callback);
-      },
-      categorys_items: function (callback) {
-        Item.find({ category: req.params.id }).exec(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (results.categorys_items.length) {
-        var err = new Error("Categorys items must be removed first: ");
-        res.render("category_delete", { err, ...results });
-      } else if (req.body.password !== password) {
-        var err = new Error("Invalid admin password");
-        res.render("category_delete", { err, ...results });
-      } else {
-        Category.findByIdAndRemove(req.params.id, function (err) {
-          if (err) {
-            return next(err);
-          }
-          res.redirect("/inventory/categories");
-        });
-      }
+exports.category_delete_post = async (req, res, next) => {
+  try {
+    category = await Category.findById(req.params.id).exec();
+    categorys_items = await Item.find({ category: req.params.id }).exec();
+
+    if (categorys_items.length) {
+      var err = new Error("Categorys items must be removed first: ");
+      res.render("category_delete", { err, category, categorys_items });
+    } else {
+      Category.findByIdAndRemove(req.params.id)
+        .then(() => res.redirect("/inventory/categories"))
+        .catch(err => next(err));
     }
-  );
+  }
+  catch (err) {
+    return next(err);
+  }
 };
 
 // Update Category
-exports.category_update_get = function (req, res, next) {
-  async.parallel(
-    {
-      category: function (callback) {
-        Category.findById(req.params.id).exec(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (!results.category) {
+exports.category_update_get = (req, res, next) => {
+  Category.findById(req.params.id).exec()
+    .then(category => {
+      if (!category) {
         res.redirect("/inventory/categories");
       } else {
-        res.render("category_form", {
-          title: "Update Category",
-          ...results,
-          requirePass: true,
-        });
+        res.render("category_form", { title: "Update Category", category, requirePass: true, });
       }
-    }
-  );
+    })
+    .catch(err => next(err));
 };
 
 exports.category_update_post = [
   body("name", "Name must be specified").trim().isLength({ min: 1 }).escape(),
   body("description").trim().escape(),
+
   // process request after sanitization
   (req, res, next) => {
     const errors = validationResult(req);
@@ -190,26 +132,11 @@ exports.category_update_post = [
     });
 
     if (!errors.isEmpty()) {
-      res.render("category_form", {
-        title: "Update Category",
-        ...errors,
-        passError,
-        category,
-        requirePass: true,
-      });
-      return;
+      res.render("category_form", { title: "Update Category", ...errors, category, });
     } else {
-      Category.findByIdAndUpdate(
-        req.params.id,
-        category,
-        {},
-        function (err, thecategory) {
-          if (err) {
-            return next(err);
-          }
-          res.redirect(thecategory.url);
-        }
-      );
+      Category.findByIdAndUpdate(req.params.id, category, {})
+        .then(thecategory => res.redirect(thecategory.url))
+        .catch(err => next(err));
     }
   },
 ];
