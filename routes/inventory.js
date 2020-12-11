@@ -16,46 +16,23 @@ router.get("/", category_controller.index);
 router.get("/categories", category_controller.category_list);
 
 // category create
-router.get(
-  "/category/create",
-  isLoggedIn,
-  category_controller.category_create_get
-);
+router.get("/category/create", isLoggedIn, category_controller.category_create_get);
 
-router.post(
-  "/category/create",
-  isLoggedIn,
-  category_controller.category_create_post
-);
+router.post("/category/create", isLoggedIn, category_controller.category_create_post);
 
 // category update
-router.get(
-  "/category/:id/update",
-  isAdmin,
-  category_controller.category_update_get
-);
+router.get("/category/:id/update", isAdmin, category_controller.category_update_get);
 
-router.post(
-  "/category/:id/update",
-  isAdmin,
-  category_controller.category_update_post
-);
+router.post("/category/:id/update", isAdmin, category_controller.category_update_post);
 
 // category delete
-router.get(
-  "/category/:id/delete",
-  isAdmin,
-  category_controller.category_delete_get
-);
+router.get("/category/:id/delete", isAdmin, category_controller.category_delete_get);
 
-router.post(
-  "/category/:id/delete",
-  isAdmin,
-  category_controller.category_delete_post
-);
+router.post("/category/:id/delete", isAdmin, category_controller.category_delete_post);
 
 // category details
 router.get("/category/:id", category_controller.category_details);
+
 
 ///     ITEM ROUTES     \\\
 

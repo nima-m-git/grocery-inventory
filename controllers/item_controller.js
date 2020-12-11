@@ -3,77 +3,45 @@ const Item = require("../models/item");
 const Category = require("../models/category");
 
 const { body, validationResult } = require("express-validator");
-const password = process.env.ADMINPASSWORD || "password";
 const { upload } = require("../upload");
 
-const fs = require("fs");
-const path = require("path");
-
-async function deleteImageIfExists(id) {
-  const oldItem = await Item.findById(id);
-
-  if (oldItem.filename) {
-    fs.unlink(
-      path.resolve(__dirname, "../public/images/" + oldItem.filename),
-      function (err) {
-        if (err) throw new Error(err);
-      }
-    );
-  }
-}
+const deleteImage = require('../components/deleteImageIfExists');
 
 // Display all Items
-exports.item_list = function (req, res, next) {
+exports.item_list = (req, res, next) => {
   Item.find()
     .sort([["name", "ascending"]])
     .populate("image")
-    .exec(function (err, item_list) {
-      if (err) {
-        return next(err);
-      }
+    .exec((err, item_list) => {
+      if (err) { next(err); }
       res.render("item_list", { item_list });
     });
 };
 
 // Display Item Details
-exports.item_details = function (req, res, next) {
-  async.parallel(
-    {
-      item: function (callback) {
-        Item.findById(req.params.id)
-          .populate("category")
-          .populate("image")
-          .exec(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (!results.item) {
+exports.item_details = (req, res, next) => {
+  Item.findById(req.params.id)
+    .populate("category")
+    .populate("image")
+    .exec()
+    .then(item => {
+      if (!item) {
         res.redirect("/inventory/items");
       } else {
-        res.render("item_details", { ...results });
+        res.render("item_details", { item });
       }
-    }
-  );
+    })
+    .catch(err => next(err));
 };
 
+
 // Create Item
-exports.item_create_get = function (req, res, next) {
-  async.parallel(
-    {
-      categories: function (callback) {
-        Category.find(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      res.render("item_form", { title: "New Item", ...results });
-    }
-  );
+exports.item_create_get = (req, res, next) => {
+  Category.find()
+    .then(categories => {
+      res.render("item_form", { title: "New Item", categories });
+    })
+    .catch(err => next(err));
 };
 
 exports.item_create_post = [
@@ -108,120 +76,95 @@ exports.item_create_post = [
     const errors = validationResult(req);
 
     const item = req.file
-      ? new Item({
-          ...req.body,
-          ...req.file,
-        })
-      : new Item({
-          ...req.body,
-        });
+    ? new Item({
+      ...req.body,
+      ...req.file,
+    })
+    : new Item({
+      ...req.body,
+    });
 
     if (!errors.isEmpty()) {
       // there are errors, rerender
-      async.parallel(
-        {
-          categories: function (callback) {
-            Category.find(callback);
-          },
-        },
-        function (err, results) {
-          if (err) {
-            return next(err);
-          }
-
-          results.categories.forEach((category) => {
+      Category.find()
+        .then(categories => {
+          // apply checkbox status
+          categories.forEach((category) => {
             item.category.forEach((cat) => {
               if (category._id.toString() === cat._id.toString()) {
                 category.checked = "true";
               }
             });
           });
+          // rerender form with prior inputs
           res.render("item_form", {
             title: "New item",
-            ...errors,
             item,
-            ...results,
+            categories,
+            ...errors,
           });
-        }
-      );
+        })
+        .catch(err => next(err));
+
     } else {
-      item.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        // render item detail page
-        res.redirect(item.url);
-      });
+      item.save()
+        // redirect item detail page
+        .then(() => res.redirect(item.url))
+        .catch(err => next(err));
     }
   },
 ];
 
 // Delete Item
-exports.item_delete_get = function (req, res, next) {
-  async.parallel(
-    {
-      item: function (callback) {
-        Item.findById(req.params.id).exec(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (!results.item) {
+exports.item_delete_get = (req, res, next) => {
+  Item.findById(req.params.id)
+    .exec()
+    .then(item => {
+      if (!item) {
         res.redirect("/inventory/items");
       }
-      res.render("item_delete", { ...results });
-    }
-  );
+      res.render("item_delete", { item });
+    })
+    .catch(err => next(err));
 };
 
-exports.item_delete_post = async function (req, res, next) {
-  await deleteImageIfExists(req.params.id);
+exports.item_delete_post = async (req, res, next) => {
+  await deleteImage.deleteImageIfExists(req.params.id);
 
-  Item.findByIdAndRemove(req.params.id, function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/inventory/items");
-  });
+  Item.findByIdAndRemove(req.params.id)
+    .then(() => res.redirect("/inventory/items"))
+    .catch(err => next(err));
 };
 
 // Update Item
-exports.item_update_get = function (req, res, next) {
-  async.parallel(
-    {
-      item: function (callback) {
-        Item.findById(req.params.id).populate("category image").exec(callback);
-      },
-      categories: function (callback) {
-        Category.find(callback);
-      },
-    },
-    function (err, results) {
-      if (err) {
-        return next(err);
-      }
-      if (!results.item) {
-        var err = new Error("No item found");
-        err.status = 404;
-        return next(err);
-      } else {
-        results.categories.forEach((category) => {
-          results.item.category.forEach((cat) => {
-            if (category._id.toString() === cat._id.toString()) {
-              category.checked = "true";
-            }
-          });
+exports.item_update_get = async (req, res, next) => {
+  try {
+    const item = await Item.findById(req.params.id).populate("category image").exec();
+    const categories = await Category.find().exec();
+
+    if (!item) {
+      var err = new Error("No item found");
+      err.status = 404;
+      return next(err);
+    } else {
+      categories.forEach((category) => {
+        item.category.forEach((cat) => {
+          if (category._id.toString() === cat._id.toString()) {
+            category.checked = "true";
+          }
         });
-        res.render("item_form", {
-          title: "Update Item",
-          ...results,
-          requirePass: true,
-        });
-      }
+      });
+      res.render("item_form", {
+        title: "Update Item",
+        item,
+        categories,
+        requirePass: true,
+      });
     }
-  );
+  }
+  catch (err) {
+    next(err);
+  }
 };
 
 exports.item_update_post = [
@@ -263,18 +206,9 @@ exports.item_update_post = [
 
     if (!errors.isEmpty()) {
       // there are errors, rerender
-      async.parallel(
-        {
-          categories: function (callback) {
-            Category.find(callback);
-          },
-        },
-        function (err, results) {
-          if (err) {
-            return next(err);
-          }
-
-          results.categories.forEach((category) => {
+      Category.find().exec()
+        .then(categories => {
+          categories.forEach((category) => {
             item.category.forEach((cat) => {
               if (category._id.toString() === cat._id.toString()) {
                 category.checked = "true";
@@ -284,24 +218,22 @@ exports.item_update_post = [
 
           res.render("item_form", {
             title: "Update Item",
-            ...results,
+            categories,
             item,
             ...errors,
           });
-        }
-      );
+        })
+        .catch(err => next(err));
+
     } else {
       // remove old image if selected, or new image
       if (req.body["remove-image"] || req.file) {
-        await deleteImageIfExists(req.params.id);
+        await deleteImage.deleteImageIfExists(req.params.id);
       }
 
-      Item.findByIdAndUpdate(req.params.id, item, {}, function (err, theitem) {
-        if (err) {
-          return next(err);
-        }
-        res.redirect(theitem.url);
-      });
+      Item.findByIdAndUpdate(req.params.id, item, {})
+        .then(theitem => res.redirect(theitem.url))
+        .catch(err => next(err));
     }
   },
 ];
