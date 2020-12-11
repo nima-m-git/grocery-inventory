@@ -43,7 +43,7 @@ img {
 }
 
 /* Form */
-form {
+form:not(.no-form) {
   width: 450px;
   margin: 0 auto;
   padding: 1.5em;

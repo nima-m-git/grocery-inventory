@@ -6,7 +6,7 @@ block content
     p
         i !{item.description}
 
-    form(method='POST' action='')
+    form.no-form(method='POST' action='')
       .form-group
         input#itemid.form-control(type='hidden',name='itemid', required='true', value=item._id )
         
