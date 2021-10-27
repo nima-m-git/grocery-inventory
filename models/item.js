@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
@@ -23,7 +23,7 @@ const ItemSchema = new Schema({
   category: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
       required: true,
     },
   ],
@@ -36,18 +36,18 @@ const ItemSchema = new Schema({
 });
 
 // Virtual for item's URL
-ItemSchema.virtual("url").get(function () {
-  return "/inventory/item/" + this._id;
+ItemSchema.virtual('url').get(function () {
+  return '/inventory/item/' + this._id;
 });
 
 // Virtual for image's URL
-ItemSchema.virtual("imageurl").get(function () {
-  return "/images/" + this.filename;
+ItemSchema.virtual('imageurl').get(function () {
+  return '/images/' + this.filename;
 });
 
 // Virtual for item's price
-ItemSchema.virtual("formattedPrice").get(function () {
-  return "$" + this.price;
+ItemSchema.virtual('formattedPrice').get(function () {
+  return '$' + this.price;
 });
 
-module.exports = mongoose.model("Item", ItemSchema);
+module.exports = mongoose.model('Item', ItemSchema);

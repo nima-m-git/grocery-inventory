@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
@@ -8,9 +8,9 @@ const CategorySchema = new Schema({
 });
 
 // Virtual for author's URL
-CategorySchema.virtual("url").get(function () {
-  return "/inventory/category/" + this._id;
+CategorySchema.virtual('url').get(function () {
+  return '/inventory/category/' + this._id;
 });
 
 // Export model
-module.exports = mongoose.model("Category", CategorySchema);
+module.exports = mongoose.model('Category', CategorySchema);

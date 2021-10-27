@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   email: {
     type: String,
-    required: [true, "Email required"],
+    required: [true, 'Email required'],
     maxlength: 50,
     trim: true,
   },
@@ -32,6 +32,6 @@ const UserSchema = new Schema({
 });
 
 // Virtual for user url
-UserSchema.virtual("url").get(() => "/user/" + this._id);
+UserSchema.virtual('url').get(() => '/user/' + this._id);
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', UserSchema);
